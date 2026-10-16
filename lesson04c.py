@@ -8,6 +8,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 from tools import list_terms, lookup_term
+from utils import get_text
 
 load_dotenv()
 
@@ -40,6 +41,11 @@ def run_conversation(agent, thread_id):
             f"turn {i}: messages in state = {len(messages):2d}, "
             f"input tokens of last call = {usage.get('input_tokens')}"
         )
+        if i == len(QUESTIONS):
+            print("--- first message in state:", type(messages[0]).__name__)
+            print(get_text(messages[0]))
+            print("--- final answer:")
+            print(get_text(messages[-1]))
 
 
 print("=== C1: no trimming ===")

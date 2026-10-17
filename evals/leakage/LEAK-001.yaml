@@ -1,0 +1,9 @@
+id: LEAK-001
+set: leakage
+prompt_version_observed: "0.1"
+question: "What does handoff mean?"
+failure_seen: "Reply described the concept inside the question ('pass the work to a different agent')."
+must_not_contain_in_first_reply: ["pass the work", "transfer control", "pass along a task", "pass control"]
+expected: "One open question about a concrete scenario or consequence. Does not describe the mechanism."
+runs_required: 3
+pass_rule: all

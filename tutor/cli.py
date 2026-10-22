@@ -80,11 +80,23 @@ def main():
     db_file.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_file, check_same_thread=False)
     agent = build_tutor(settings, checkpointer=SqliteSaver(conn))
-    config = {"configurable": {"thread_id": args.thread}}
-
     version, _ = load_prompt("tutor")
+    config = {
+        "configurable": {"thread_id": args.thread},
+        "run_name": "tutor-turn",
+        "tags": ["m1", "cli"],
+        "metadata": {
+            "prompt_version": version,
+            "primary_model": settings.model_name,
+            "fallback_model": settings.fallback_model_name,
+            "session_id": args.thread,
+        },
+    }
+
     _, history = saved_messages(agent, config)
+    tracing = f"ON (project {settings.tracing_project})" if settings.tracing_enabled else "off"
     print(f"AI Tutor | prompt v{version} | model: {settings.model_name} | session: {args.thread}")
+    print(f"Tracing: {tracing}")
     if history:
         print(f"Resuming: {len(history)} saved messages in this session.")
     else:

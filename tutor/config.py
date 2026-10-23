@@ -29,6 +29,18 @@ def load_settings() -> Settings:
             "LANGSMITH_TRACING is true but LANGSMITH_API_KEY is missing."
             "Add the key to .env or set LANGSMITH_TRACINF=false"
         )
+
+    model_provider = os.getenv("MODEL_PROVIDER", "google_genai")
+    timeout_seconds = int(os.getenv("TIMEOUT_SECONDS", "30"))
+    max_retries = int(os.getenv("MAX_RETRIES", "1"))
+
+    if max_retries < 0:
+        raise RuntimeError("MAX_RETRIES cannot be negative")
+    if model_provider == "google_genai" and timeout_seconds < 10:
+        raise RuntimeError(
+            "TIMEOUT_SECONDS must be at least 10 for the Gemini API, "
+            "which rejected shorter deadlines (2 s and 5 s) in testing."
+        )
     
     return Settings(
         model_name=model_name,

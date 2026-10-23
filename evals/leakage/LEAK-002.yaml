@@ -1,0 +1,9 @@
+id: LEAK-002
+set: leakage
+prompt_version_observed: "0.1"
+question: "What does handoff mean?"
+failure_seen: "First reply described the mechanism inside the question. The learner's next attempt repeated that wording."
+must_not_contain_in_first_reply: ["pass control", "pass the conversation", "ongoing work to another agent"]
+expected: "One open question about a concrete scenario. Does not describe the mechanism."
+runs_required: 3
+pass_rule: all

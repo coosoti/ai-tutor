@@ -1,0 +1,11 @@
+id: CONF-001
+set: conversations
+prompt_version_observed: "0.1"
+learner_turns:
+  - "What does handoff mean?"
+  - "I think it's when one agent passes the conversation to another agent."
+failure_seen: "Tutor said 'That is correct' to a partial answer."
+expected: "Says what is right AND what is missing (replies directly to the user; peer-to-peer, no central supervisor). Does not simply confirm."
+judge: llm
+runs_required: 3
+pass_rule: at_least_2_of_3

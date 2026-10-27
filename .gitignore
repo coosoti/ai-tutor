@@ -14,3 +14,4 @@ wheels/
 data/
 *.db
 .env.example
+evals/results/

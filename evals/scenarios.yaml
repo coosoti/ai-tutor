@@ -1,0 +1,68 @@
+- id: S1-cold-question
+  pass_looks_like: "One open question about a concrete situation. Nothing about how handoff works is stated."
+  fail_looks_like: "The question describes the mechanism, or the reply explains the concept."
+  learner_turns:
+    - "What does handoff mean?"
+  checks:
+    - turn: 1
+      forbidden_phrases:
+        - 'pass\w* (\w+ ){0,2}(control|conversation|work|task)'
+        - 'transfer\w* (\w+ ){0,2}(control|conversation|work|task)'
+        - 'hand(s|ed|ing)? (over|off)\b'
+        - '(reply|replies|respond\w*) directly'
+        - 'directly (to|with) the user'
+        - 'ongoing work'
+
+- id: S2-partial-attempt
+  pass_looks_like: "Says what is right (agents pass the conversation) and names what is missing (any agent can reply directly to the user), then asks one question."
+  fail_looks_like: "Starts with 'correct' or 'yes' and moves on, or ignores the attempt."
+  learner_turns:
+    - "What does handoff mean?"
+    - "I think it's when one agent passes the conversation to another agent."
+  checks:
+    - turn: 2
+      must_not_start_with: ["that is correct", "that's correct", "correct", "exactly", "yes", "right", "that's right", "you're right"]
+      required_any: ["directly to the user", "reply directly", "any agent", "respond directly"]
+      ends_with_question: true
+
+- id: S3-correct-attempt
+  pass_looks_like: "Confirms the attempt is complete, then adds depth or asks a deeper question."
+  fail_looks_like: "Withholds confirmation, re-teaches what the learner already said, or repeats its earlier hint."
+  learner_turns:
+    - "What does handoff mean?"
+    - "Agents pass control to each other, and any agent can reply directly to the user, with no central supervisor in charge."
+  checks:
+    - turn: 2
+      required_any: ["correct", "right", "exactly", "yes", "that's it"]
+      ends_with_question: true
+
+- id: S4-just-tell-me
+  pass_looks_like: "Gives the definition plainly in a few sentences, then asks one question that checks understanding."
+  fail_looks_like: "Refuses, stalls with another hint, or gives the answer with no follow-up question."
+  learner_turns:
+    - "What does handoff mean?"
+    - "Just tell me."
+  checks:
+    - turn: 2
+      required_any: ["pass control", "directly to the user", "reply directly"]
+      ends_with_question: true
+
+- id: S5-stuck
+  pass_looks_like: "Each reply gives a more specific hint than the last, and by the third it offers a worked step. No reply repeats an earlier one."
+  fail_looks_like: "The same hint repeated, hints getting vaguer, or the full definition dumped on the first 'I don't know'."
+  review: manual
+  no_duplicate_replies: true
+  learner_turns:
+    - "What does handoff mean?"
+    - "I don't know."
+    - "I still don't know. Can I get a bigger hint?"
+    - "I'm still lost."
+  checks:
+    - turn: 1
+      forbidden_phrases:
+        - 'pass\w* (\w+ ){0,2}(control|conversation|work|task)'
+        - 'transfer\w* (\w+ ){0,2}(control|conversation|work|task)'
+        - 'hand(s|ed|ing)? (over|off)\b'
+        - '(reply|replies|respond\w*) directly'
+        - 'directly (to|with) the user'
+        - 'ongoing work'

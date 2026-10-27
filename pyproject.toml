@@ -11,7 +11,9 @@ dependencies = [
     "langchain>=1.4.5",
     "langchain-google-genai>=4.4.1",
     "langgraph-checkpoint-sqlite>=3.1.2",
+    "pytest>=9.1.1",
     "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
@@ -20,3 +22,8 @@ ai-tutor = "ai_tutor:main"
 [build-system]
 requires = ["uv_build>=0.12.17,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

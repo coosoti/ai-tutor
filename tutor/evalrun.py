@@ -83,7 +83,7 @@ def specific_checks(reply, spec):
         hits = [p for p in spec["forbidden_phrases"] if re.search(p, low)]
         out.append(("no_leak_phrases", "hard", not hits))
     if "must_not_start_with" in spec:
-        bad = any(low.lstrip().startwith(p.lower()) for p in spec["must_not_start_with"])
+        bad = any(low.lstrip().startswith(p.lower()) for p in spec["must_not_start_with"])
         out.append(("no_bare_confirmation", "hard", not bad))
     if "required_any" in spec:
         out.append(("mentions_expected_idea", "soft", any(p.lower() in low for p in spec["required_any"])))
@@ -92,14 +92,24 @@ def specific_checks(reply, spec):
     return out
 
 
+def run_with_retries(settings, scenario, run_no, version, attempts=3, pause=15):
+    for attempt in range(1, attempts + 1):
+        run = run_scenario(settings, scenario, run_no, version)
+        run["attempts"] = attempt
+        if not any("error" in turn for turn in run["turns"]):
+            return run
+        print(f"   attempt {attempt}/{attempts} hit on API error; pausing {pause}s")
+        time.sleep(pause)
+    return run
+    
+
 def evaluate(scenario, run):
+    if any("error" in turn for turn in run["turns"]):
+        return None
     specs = {c["turn"]: c for c in scenario.get("checks", [])}
     results = []
     replies = []
     for i, turn in enumerate(run["turns"], start=1):
-        if "error" in turn:
-            results.append((f"T{i}:completed", "hard", False))
-            break
         replies.append(turn["reply"])
         for name, kind, fn in GENERAL_CHECKS:
             results.append((f"T{i}:{name}", kind, fn(turn["reply"])))
@@ -130,6 +140,7 @@ def main():
     parser.add_argument("--runs", type=int, default=3, help="runs per scenario")
     parser.add_argument("--scenario", help="run only the scenario with this id")
     parser.add_argument("--show", action="store_true", help="print full transcripts")
+    parser.add_argument("--gap", type=float, default=0, help="seconds to wait between runs")
     args = parser.parse_args()
 
     settings = load_settings()
@@ -154,15 +165,25 @@ def main():
 
     seconds_all = []
     report = []
-    passed_checks = failed_checks = 0
+    api_failures = 0
+    total_runs = 0
+    checks_passed = checks_failed = 0
+
     for scenario in scenarios:
-        runs, all_results = [], []
+        runs, valid_results = [], []
         for run_no in range(1, args.runs + 1):
-            run = run_scenario(settings, scenario, run_no, version)
+            run = run_with_retries(settings, scenario, run_no, version)
             runs.append(run)
-            all_results.append(evaluate(scenario, run))
+            total_runs += 1
+            graded = evaluate(scenario, run)
+            if graded is None:
+                api_failures += 1
+            else:
+                valid_results.append(graded)
             seconds_all += [t["seconds"] for t in run["turns"] if "seconds" in t]
-            print(f"  {scenario['id']} run {run_no}/{args.runs} done")
+            status = "done" if graded is not None else "FAILED (API error)"
+            print(f"  {scenario['id']} run {run_no}/{args.runs} {status}, attempts used: {run['attempts']}")
+            time.sleep(args.gap)
 
         if args.show:
             for run in runs:
@@ -175,16 +196,22 @@ def main():
                         print(f"tutor>   {t['reply']}")
                         print(f"  [{t['model']} | {t['seconds']}s | tool: {t['tool_used']}]")
 
-        rows = summarize(all_results)
-        print(f"\n{scenario['id']}")
+        if not valid_results:
+            print(f"\n{scenario['id']}: NO VALID RUNS, cannot grade\n")
+            report.append({"scenario": scenario["id"], "rows": [], "runs": runs})
+            continue
+
+        rows = summarize(valid_results)
+        print(f"\n{scenario['id']} (graded runs: {len(valid_results)}/{args.runs})")
         for name, kind, passes, total, ok in rows:
             print(f"  {name:<28} {kind:<5} {passes}/{total}  {'pass' if ok else 'FAIL'}")
-            passed_checks += int(ok)
-            failed_checks += int(not ok)
+            checks_passed += int(ok)
+            checks_failed += int(not ok)
         report.append({"scenario": scenario["id"], "rows": rows, "runs": runs})
         print()
 
-    print(f"Checks passed: {passed_checks} | failed: {failed_checks}")
+    print(f"Runs graded: {total_runs - api_failures}/{total_runs} | API failures after retries: {api_failures}")
+    print(f"Checks passed: {checks_passed} | failed: {checks_failed}")
     if seconds_all:
         print(
             f"Latency per turn: median {statistics.median(seconds_all):.1f}s | "

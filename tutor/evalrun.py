@@ -115,6 +115,8 @@ def evaluate(scenario, run):
             results.append((f"T{i}:{name}", kind, fn(turn["reply"])))
         if i in specs:
             for name, kind, ok in specific_checks(turn["reply"], specs[i]):
+                if specs[i].get("tool_required"):
+                    results.append((f"T{i}:tool_used", "hard", turn.get("tool_used", False)))
                 results.append((f"T{i}:{name}", kind, ok))
     if scenario.get("no_duplicate_replies"):
         results.append(("no_duplicate_replies", "soft", len(set(replies)) == len(replies)))

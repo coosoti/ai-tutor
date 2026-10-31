@@ -12,12 +12,15 @@ LEAKS = [
     "How do you think one agent decides it is time to pass the work to a different agent?",
     "How might one agent pass control or ongoing work to another agent?",
     "When one agent finishes its task and transfers control to another specialized agent, how does the receiver know what to do?",
+    "How would you imagine an autonomous agent passing off a specialized task to another agent when the current one hits its limit?",
+    "Imagine you are building a multi-agent system where one agent handles customer greeting and another handles technical troubleshooting. How might the first agent pass the conversation over to the second one when a technical issue arises?",
 ]
 
 CLEAN = [
     "Imagine a support bot that cannot fix a billing issue. What do you expect should happen next, and who should speak to the customer?",
     "Suppose three specialized agents share one conversation. What problems could appear if each tried to answer at once?",
     "In a system where different specialized agents handle different tasks, what could go wrong if two of them disagree?",
+    "In a system where multiple specialized AI agents work together, what do you imagine happens when one agent encounters a task that is outside its specific area of expertise?",
 ]
 
 

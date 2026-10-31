@@ -5,10 +5,11 @@
     - "What does handoff mean?"
   checks:
     - turn: 1
-      forbidden_phrases:
-        - 'pass\w* (\w+ ){0,2}(control|conversation|work|task)'
-        - 'transfer\w* (\w+ ){0,2}(control|conversation|work|task)'
-        - 'hand(s|ed|ing)? (over|off)\b'
+      forbidden_phrases: &leak_patterns
+        - '\bpass\w* (\w+ ){0,4}(control|conversation|work|task|context|session)'
+        - '\bpass\w* (off|on|over)\b'
+        - '\btransfer\w* (\w+ ){0,4}(control|conversation|work|task|context|session)'
+        - '\bhand(s|ed|ing)? (\w+ )?(over|off)\b'
         - '(reply|replies|respond\w*) directly'
         - 'directly (to|with) the user'
         - 'ongoing work'
@@ -21,6 +22,7 @@
     - "I think it's when one agent passes the conversation to another agent."
   checks:
     - turn: 2
+      tool_required: true
       must_not_start_with: ["that is correct", "that's correct", "correct", "exactly", "yes", "right", "that's right", "you're right"]
       required_any: ["directly to the user", "reply directly", "any agent", "respond directly"]
       ends_with_question: true
@@ -33,6 +35,7 @@
     - "Agents pass control to each other, and any agent can reply directly to the user, with no central supervisor in charge."
   checks:
     - turn: 2
+      tool_required: true
       required_any: ["correct", "right", "exactly", "yes", "that's it"]
       ends_with_question: true
 
@@ -59,10 +62,4 @@
     - "I'm still lost."
   checks:
     - turn: 1
-      forbidden_phrases:
-        - 'pass\w* (\w+ ){0,2}(control|conversation|work|task)'
-        - 'transfer\w* (\w+ ){0,2}(control|conversation|work|task)'
-        - 'hand(s|ed|ing)? (over|off)\b'
-        - '(reply|replies|respond\w*) directly'
-        - 'directly (to|with) the user'
-        - 'ongoing work'
+      forbidden_phrases: *leak_patterns

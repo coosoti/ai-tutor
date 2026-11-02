@@ -23,7 +23,7 @@
   checks:
     - turn: 2
       tool_required: true
-      must_not_start_with: ["that is correct", "that's correct", "correct", "exactly", "yes", "right", "that's right", "you're right"]
+      must_not_start_with: ["that is correct", "that's correct", "correct", "exactly", "yes", "right", "that's right", "you're right", "you're correct", "you are correct", "your answer is correct", "absolutely", "precisely"]
       required_any: ["directly to the user", "reply directly", "any agent", "respond directly"]
       ends_with_question: true
 
@@ -36,7 +36,7 @@
   checks:
     - turn: 2
       tool_required: true
-      required_any: ["correct", "right", "exactly", "yes", "that's it"]
+      required_any: ["correct", "right", "exactly", "yes", "that's it", "covers", "covered", "captured", "complete", "matches", "accurate", "you've got"]
       ends_with_question: true
 
 - id: S4-just-tell-me

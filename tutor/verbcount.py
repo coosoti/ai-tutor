@@ -7,6 +7,7 @@ from tutor.solution_verbs import find_solution_verb
 
 def main():
     path = Path(sys.argv[1])
+    blind = "--blind" in sys.argv
     report = json.loads(path.read_text(encoding="utf-8"))
     total = hits = 0
     for item in report:
@@ -14,11 +15,15 @@ def main():
             turn = run["turns"][0]
             if "reply" not in turn:
                 continue
+            if blind:
+                print(f"{item['scenario']} run {run['run']}: {turn['reply']}\n")
+                continue
             total += 1
             found = find_solution_verb(turn["reply"])
             hits += bool(found)
             print(f"{item['scenario']} run {run['run']}: {found or 'none'}")
-    print(f"\nFirst replies containing a solution verb: {hits}/{total}")
+    if not blind:
+        print(f"\nFirst replies containing a solution verb: {hits}/{total}")
 
 
 if __name__ == "__main__":

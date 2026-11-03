@@ -10,6 +10,7 @@ load_dotenv()
 class Settings:
     model_name: str
     fallback_model_name: str | None
+    checker_model_name: str | None
     model_provider: str
     db_path: str
     max_retries: int
@@ -45,6 +46,7 @@ def load_settings() -> Settings:
     return Settings(
         model_name=model_name,
         fallback_model_name=os.getenv("FALLBACK_MODEL_NAME") or None,
+        checker_model_name=os.getenv("CHECKER_MODEL_NAME") or None,
         model_provider=os.getenv("MODEL_PROVIDER", "google_genai"),
         db_path=os.getenv("DB_PATH", "data/tutor_memory.db"),
         max_retries=int(os.getenv("MAX_RETRIES", "1")),
